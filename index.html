@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Form Submit</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; background-color: #f4f4f9; }
+        .form-container { max-width: 400px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        input, textarea, button { width: 100%; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #0088cc; color: white; border: none; font-weight: bold; cursor: pointer; }
+        button:hover { background-color: #006699; }
+        #statusMessage { font-weight: bold; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>संपर्क फ़ॉर्म</h2>
+    <form id="telegramForm">
+        <label for="name">नाम:</label>
+        <input type="text" id="name" required placeholder="अपना नाम दर्ज करें">
+
+        <label for="email">ईमेल:</label>
+        <input type="email" id="email" required placeholder="अपना ईमेल दर्ज करें">
+
+        <label for="message">संदेश:</label>
+        <textarea id="message" rows="4" required placeholder="अपना संदेश लिखें..."></textarea>
+
+        <button type="submit">सबमिट करें</button>
+    </form>
+    <div id="statusMessage"></div>
+</div>
+
+<script>
+    document.getElementById('telegramForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // ⚠️ अपने Bot details यहाँ दर्ज करें
+        const botToken = "8521590080:AAFgN7OXXT3SIQcxLFRZA9qTlO4ZA3LX6bE"; 
+        const chatId = "6644554566";
+
+        // फॉर्म से डेटा लें
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const message = document.getElementById('message').value;
+
+        // टेलीग्राम पर भेजा जाने वाला मैसेज टेक्स्ट
+        const textMessage = `📌 **नया फॉर्म सबमिशन**\n\n👤 **नाम:** ${name}\n📧 **ईमेल:** ${email}\n💬 **संदेश:** ${message}`;
+
+        const statusDiv = document.getElementById('statusMessage');
+        statusDiv.style.color = "blue";
+        statusDiv.innerHTML = "भेजा जा रहा है...";
+
+        // Telegram API कॉल
+        fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                chat_id: chatId,
+                text: textMessage,
+                parse_mode: 'Markdown'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.ok) {
+                statusDiv.style.color = "green";
+                statusDiv.innerHTML = "✅ जानकारी सफलतापूर्वक भेज दी गई!";
+                document.getElementById('telegramForm').reset();
+            } else {
+                statusDiv.style.color = "red";
+                statusDiv.innerHTML = "❌ एरर: मैसेज नहीं भेजा जा सका।";
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            statusDiv.style.color = "red";
+            statusDiv.innerHTML = "❌ नेटवर्क एरर! कृपया पुनः प्रयास करें।";
+        });
+    });
+</script>
+
+</body>
+</html>
